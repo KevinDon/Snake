@@ -19,8 +19,8 @@
 
 			var width = 20; //Area宽度
 			var height = 20; //Area高度
-			var gridElemts = twoArray(width, height); //td的元素
-			var carrier = twoArray(width, height); //载体数组
+			var gridElemts = twoArray(width, height); //td的元素 显示到界面
+			var carrier = twoArray(width, height); //载体数组 虚拟的数组
 			var len = 3; //Snake的初始长度
 			var snake = new Array;
 			var directionkey = 39;
@@ -100,6 +100,7 @@
 				if(headX < 0 || headX >= width || headY < 0 || headY >= height || carrier[headX][headY] == "cover"){
 					clearInterval(snakeTimer);
 					$("#message").html("Game Over!!");
+					$(".start").removeAttr('disabled');
 					console.log("Game Over!");
 					return;
 				}
@@ -153,6 +154,7 @@
 				initSnake();
 				walk();
 				createObject("food");
+				$(this).attr('disabled', 'true');
 			});
 
 			$(document).keydown(function() {
