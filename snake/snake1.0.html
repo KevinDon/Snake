@@ -11,6 +11,7 @@
 		#snakeArea{ }
 		.start{ display: block; margin: 10px 0 0 200px;}
 		.cover{ background: #000; }
+		.food { background: #000;}
 	</style>
 	<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
 	<script type="text/javascript">
@@ -31,7 +32,6 @@
 					var y = pointer[1];
 					snake.push([x, y]);
 					carrier[x][y] = "cover";
-					console.log(snake);
 				};
 			}
 
@@ -49,7 +49,6 @@
 				}
 				p[0] = x;
 				p[1] = y;
-				console.log(p);
 				return p;
 			}
 
@@ -64,10 +63,19 @@
 					};
 					table.appendChild(tr)
 				};
-				console.log(gridElems);
 				document.getElementById("snakeArea").appendChild(table);
+				console.log(gridElems);
 			}
 
+			//生成目标
+			function addObject(name){
+				var p = randomPointer();
+				var x = p[0];
+				var y = p[1];
+				carrier[x][y] = name;
+				gridElems[x][y].className = name;
+				console.log(p);
+			}
 
 
 			//判断
@@ -83,16 +91,22 @@
 
 				if(headX >= width || headX < 0 || headY >= height || headY < 0 || carrier[headX][headY] == "cover" ){
 					$("#message").html("Game Over.");
-					window.clearInterval(snakeTimer);	
-					console.log("Game Over.");	         
+					window.clearInterval(snakeTimer);
+					console.log("Game Over.");
 					return;
 				}
 
-				var lastX = snake[snake.length - 1][0];
-				var lastY = snake[snake.length - 1][1];
-				carrier[lastX][lastY] = false;
-				gridElems[lastX][lastY].className = "";
-				snake.pop();
+				if(carrier[headX][headY] != "food"){
+					var lastX = snake[snake.length - 1][0];
+					var lastY = snake[snake.length - 1][1];
+					carrier[lastX][lastY] = false;
+					gridElems[lastX][lastY].className = "";
+					snake.pop();
+				} else {
+					carrier[headX][headY] = false;
+					console.log("迟到食物");
+					addObject("food");
+				}
 
 				snake.unshift([headX, headY]);
 				console.log(snake);
@@ -127,7 +141,8 @@
 			createTable();
 			$(".start").click(function(){
 				initSnake();
-				walk();				
+				walk();
+				addObject("food");			
 			})
 		})
 	</script>
