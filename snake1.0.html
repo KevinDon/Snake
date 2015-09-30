@@ -25,6 +25,8 @@
 			var snake;
 			var directionkey;
 			var snakeTimer;
+			var initialTime = 500; //初始时间
+			var speed = 10; //速度
 
 			//生成Snake
 			function initSnake(){
@@ -108,11 +110,19 @@
 					gridElemts[lastX][lastY].className = "";
 					snake.pop();
 				}else{
+					speed  = speed + 2;
+					initialTime = initialTime - speed;
+					if(initialTime < 50){
+						initialTime = 50;
+					}
+					if(snakeTimer){
+						clearInterval(snakeTimer);
+					}
+					snakeTimer = setInterval(function (){ step(); }, initialTime);
 					carrier[headX][headY] = false;
 					gridElemts[headX][headY].className = "";
 					createObject("food");
 				}
-
 				snake.unshift([headX, headY]);
 				carrier[headX][headY] = "cover";
 				gridElemts[headX][headY].className = "cover";
@@ -125,7 +135,7 @@
 				if(snakeTimer){
 					clearInterval(snakeTimer);
 				}
-				snakeTimer = setInterval(function (){ step(); }, 500);
+				snakeTimer = setInterval(function (){ step(); }, initialTime);
 			}
 
 			//生成二维数组
@@ -144,6 +154,7 @@
 				return false;
 			}
 
+			//重新开始时清除
 			function clearElemts(){
 				for (var j = 0; j < gridElemts.length; j++) {
 					for (var i = 0; i < gridElemts[j].length; i++) {
@@ -155,11 +166,11 @@
 			createTable();
 			$(".start").click(function(){
 				if(! $(this).attr('disabled')){
+					clearElemts();
 					carrier = twoArray(width, height); 
 					len = 3; 
 					snake = new Array();
 					directionkey = 39;
-					clearElemts();
 					initSnake();
 					walk();
 					createObject("food");
