@@ -16,13 +16,133 @@
 	<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
 	<script type="text/javascript">
 		$(function(){
+
 			var width = 20; //Area宽度
 			var height = 20; //Area高度
+			var gridElemts = twoArray(width, height); //td的元素
+			var carrier = twoArray(width, height); //载体数组
+			var len = 3; //Snake的初始长度
+			var snake = new Array;
+			var directionkey = 39;
+			var snakeTimer;
 
+			//生成Snake
+			function initSnake(){
+				var pointer = randomPointer(len-1, len-1, width/2, height);
+				for (var i = 0; i  < len; i++) {
+					var x = pointer[0] - 1;
+					var y = pointer[1];
+					snake.push([x, y]);
+					carrier[x][y] = "cover";
+				};
+				console.log(snake);
+			}
+
+			//随机方块
+			function randomPointer(startX, startY, endX, endY){
+				var startX = startX || 0;
+				var startY = startY || 0;
+				var endX = endX || width;
+				var endY = endY || height;
+
+				p = [];
+				var x = Math.floor(Math.random() * (endX - startX))  + startX;
+				var y = Math.floor(Math.random() * (endY - startY))  + startY;
+
+				//如果生成的坐标是已有载体的话就再调用一次函数
+				if(carrier[x][y]){
+					return randomPointer(startX, startY, endX, endY);
+				}
+
+				p[0] = x;
+				p[1] = y;
+				console.log(p);
+				return p;
+			}
+			
 			//生成表格
 			function createTable(){
-				
+				var table = document.createElement("table");
+				for (var j = 0; j < height; j++) {
+					var tr = document.createElement("tr");
+					for (var i = 0; i < width; i++) {
+						var td = document.createElement("td");
+						gridElemts[i][j] = tr.appendChild(td);
+					};
+					table.appendChild(tr);
+				};
+				document.getElementById("snakeArea").appendChild(table);
 			}
+			
+			//判断
+			function step(){
+				//先把当前的头部坐标存储
+				var headX = snake[0][0];
+				var headY = snake[0][1];
+
+				//前进后的坐标
+				switch(directionkey){
+					case 37: headX -= 1; break; //left
+					case 38: headY -= 1; break; //up
+					case 39: headX += 1; break; //right
+					case 40: headY += 1; break; //down
+				}
+
+				if(headX < 0 || headX >= width || headY < 0 || headY >= height || carrier[headX][headY] == "cover"){
+					clearInterval(snakeTimer);
+					console.log("Game over!");
+					return ;
+				}
+				console.log(snake);
+
+				var lastX = snake[snake.length - 1][0];
+				var lastY = snake[snake.length - 1][1];
+				carrier[lastX][lastY] = false;
+				gridElemts[lastX][lastY].className = "";
+				snake.pop();
+
+				snake.unshift([headX, headY]);
+				carrier[headX][headY] = "cover";
+				gridElemts[headX][headY].className = "cover";
+
+				len = snake.length;
+
+			}
+
+			function walk(){
+				if(snakeTimer){
+					clearInterval(snakeTimer);
+				}
+				snakeTimer = setInterval(function (){ step(); }, 500);
+			}
+
+
+			//生成二维数组
+			function twoArray(m, n){
+				var arr = new Array(n);
+				for (var i = 0; i < m; i++) {
+					arr[i] = new Array(m);
+				};
+				return arr;
+			}
+
+			//监听事件
+			function ListenEvent(e){
+				e = e || event;
+				directionkey = e.keyCode < 41 && e.keyCode > 36 && Math.abs(e.keyCode - directionkey) != 2 ? e.keyCode : directionkey;
+				return false;
+			}
+
+			createTable();
+
+			$(".start").click(function(){
+				initSnake();
+				walk();
+			});
+
+			$(document).keydown(function() {
+				ListenEvent(event);
+			});
 		})
 	</script>
 </head>
