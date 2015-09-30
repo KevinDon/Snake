@@ -20,10 +20,10 @@
 			var width = 20; //Area宽度
 			var height = 20; //Area高度
 			var gridElemts = twoArray(width, height); //td的元素 显示到界面
-			var carrier = twoArray(width, height); //载体数组 虚拟的数组
-			var len = 3; //Snake的初始长度
-			var snake = new Array;
-			var directionkey = 39;
+			var carrier; //载体数组 虚拟的数组
+			var len;//Snake的初始长度
+			var snake;
+			var directionkey;
 			var snakeTimer;
 
 			//生成Snake
@@ -35,7 +35,6 @@
 					snake.push([x, y]);
 					carrier[x][y] = "cover";
 				};
-				console.log(snake);
 			}
 
 			//生成载体
@@ -65,7 +64,6 @@
 
 				p[0] = x;
 				p[1] = y;
-				console.log(p);
 				return p;
 			}
 			
@@ -96,7 +94,6 @@
 					case 39: headX += 1; break; //right
 					case 40: headY += 1; break; //down
 				}
-
 				if(headX < 0 || headX >= width || headY < 0 || headY >= height || carrier[headX][headY] == "cover"){
 					clearInterval(snakeTimer);
 					$("#message").html("Game Over!!");
@@ -131,7 +128,6 @@
 				snakeTimer = setInterval(function (){ step(); }, 500);
 			}
 
-
 			//生成二维数组
 			function twoArray(m, n){
 				var arr = new Array(n);
@@ -148,13 +144,27 @@
 				return false;
 			}
 
-			createTable();
+			function clearElemts(){
+				for (var j = 0; j < gridElemts.length; j++) {
+					for (var i = 0; i < gridElemts[j].length; i++) {
+						gridElemts[i][j].className = "";
+					};
+				};
+			}
 
+			createTable();
 			$(".start").click(function(){
-				initSnake();
-				walk();
-				createObject("food");
-				$(this).attr('disabled', 'true');
+				if(! $(this).attr('disabled')){
+					carrier = twoArray(width, height); 
+					len = 3; 
+					snake = new Array();
+					directionkey = 39;
+					clearElemts();
+					initSnake();
+					walk();
+					createObject("food");
+					$(this).attr('disabled', 'true');
+				}
 			});
 
 			$(document).keydown(function() {
