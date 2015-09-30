@@ -38,7 +38,16 @@
 				console.log(snake);
 			}
 
-			//随机方块
+			//生成载体
+			function createObject(name){
+				var p  = randomPointer();
+				var x = p[0];
+				var y = p[1];
+				carrier[x][y] = name;
+				gridElemts[x][y].className = name;
+			}
+
+			//随机坐标
 			function randomPointer(startX, startY, endX, endY){
 				var startX = startX || 0;
 				var startY = startY || 0;
@@ -90,16 +99,21 @@
 
 				if(headX < 0 || headX >= width || headY < 0 || headY >= height || carrier[headX][headY] == "cover"){
 					clearInterval(snakeTimer);
-					console.log("Game over!");
-					return ;
+					$("#message").html("Game Over!!");
+					console.log("Game Over!");
+					return;
 				}
-				console.log(snake);
-
-				var lastX = snake[snake.length - 1][0];
-				var lastY = snake[snake.length - 1][1];
-				carrier[lastX][lastY] = false;
-				gridElemts[lastX][lastY].className = "";
-				snake.pop();
+				if(carrier[headX][headY] != "food"){
+					var lastX = snake[snake.length - 1][0];
+					var lastY = snake[snake.length - 1][1];
+					carrier[lastX][lastY] = false;
+					gridElemts[lastX][lastY].className = "";
+					snake.pop();
+				}else{
+					carrier[headX][headY] = false;
+					gridElemts[headX][headY].className = "";
+					createObject("food");
+				}
 
 				snake.unshift([headX, headY]);
 				carrier[headX][headY] = "cover";
@@ -138,6 +152,7 @@
 			$(".start").click(function(){
 				initSnake();
 				walk();
+				createObject("food");
 			});
 
 			$(document).keydown(function() {
