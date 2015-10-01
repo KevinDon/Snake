@@ -1,0 +1,169 @@
+<!DOCTYPE HTML PUBLIC "-//W3C//DTD HTML 4.01 Transitional//EN" "http://www.w3.org/TR/html4/loose.dtd">
+<html lang="en">
+<head>
+	<meta http-equiv="Content-Type" content="text/html;charset=UTF-8">
+	<title>Snake 1.0</title>
+	<style type="text/css">
+		table {margin:0; overflow:hidden; border-collapse:collapse; }
+		td {width:20px; height:20px; border:1px solid #eee; background:#f4f4f4}
+		#message{ width: 100%; margin: 0 auto; text-align: center; font-family: "Comic Sans MS"; font-size: 20px; }
+		#snakeBox{ overflow: hidden;padding-left: 600px;  margin: 0 auto;padding: 0;  width: 484px; }
+		#snakeArea{ }
+		.start{ display: block; margin: 10px 0 0 200px;}
+		.cover{ background: #000; }
+		.food { background: #000;}
+	</style>
+	<script type="text/javascript" src="jquery-2.1.0.min.js"></script>
+	<script type="text/javascript">
+		$(function(){
+			var width = 20; //Area宽度
+			var height = 20; //Area高度
+			var gridElemts = twoArray(width, height); //td的元素 显示到界面
+			var carrier = twoArray(width, height); //载体数组 虚拟的数组
+			var snake;
+			var snakeTimer;
+			var initialTime = 500; //初始时间
+			var speed = 10; //速度
+
+			//创建Snake对象
+			function Snake(color){
+				this.color = color;
+				this.directionkey = 39;
+				this.snakeBody = new Array;
+			}
+
+			//将不同的snake的长度都存在同一内存中增加运行效率
+			Snake.prototype = {
+				len : 3,
+				step : function(){
+					var headX = this.snakeBody[0][0];
+					var headY = this.snakeBody[0][1];
+
+					switch(this.directionkey){
+						case 37: headX -= 1; break;
+						case 38: headY -= 1; break;
+						case 39: headX += 1; break;
+						case 40: headY += 1; break;
+					}
+					if(headX < 0 || headX >= width || headY < 0 || headY >= height || carrier[headX][headY] == "cover"){
+						clearInterval(snakeTimer);
+						console.log("Game Over!");
+						$("#message").html("Game Over!");
+						return false;
+					}
+
+					if(carrier[headX][headY] != "food"){
+						var lastX = this.snakeBody[this.snakeBody.length - 1][0];
+						var lastY = this.snakeBody[this.snakeBody.length - 1][1];
+						carrier[lastX][lastY] = "";
+						gridElemts[lastX][lastY].className = "";
+						this.snakeBody.pop();
+					}else{
+						carrier[headX][headY] = "cover";
+						gridElemts[headX][headY].className = "cover";
+						creatObject("food");
+					}
+
+					this.snakeBody.unshift([headX, headY]);
+					carrier[headX][headY] = "cover";
+					gridElemts[headX][headY].className = "cover";
+					this.len = this.snakeBody.length;
+				},
+				initSnake : function (){
+					var pointer = randomPointer(this.len - 1, this.len - 1, width/2, height);
+					for (var i = 0; i < this.len; i++) {
+						var x = pointer[0] -1;
+						var y = pointer[1];
+						this.snakeBody.push([x, y]);
+						carrier[x][y] = "cover";
+					};			
+					console.log(this.snakeBody);		
+				}
+			}
+
+			//生成载体
+			function creatObject(name){
+				var p = randomPointer();
+				var x = p[0];
+				var y = p[1];
+				carrier[x][y] = name;
+				gridElemts[x][y].className = name;
+			}
+
+			//随机生成坐标
+			function randomPointer(startX, startY, endX, endY){
+				var startX = startX || 0;
+				var startY = startY || 0;
+				var endX = endX || width;
+				var endY = endY || height;
+
+				var p =[];
+				var x = Math.floor(Math.random() * (endX - startX)) + startX;
+				var y= Math.floor(Math.random() * (endY - startY)) + startY;
+
+				if(carrier[x][y]){
+					randomPointer(startX, startY, endX, endY);
+				}
+
+				p[0] = x;
+				p[1] = y;
+				return p;
+			}
+
+			//创建表格
+			function createTable(){
+				var table = document.createElement("table");
+				for (var j = 0; j < height; j++) {
+					var tr = document.createElement("tr");
+					for (var i = 0; i < width; i++) {
+						var td = document.createElement("td");
+						gridElemts[i][j] = tr.appendChild(td);
+					};
+					table.appendChild(tr);
+				};
+				document.getElementById("snakeArea").appendChild(table);
+			}
+
+			function walk(){
+				if (snakeTimer) {
+					clearInterval(snakeTimer);
+				};
+				snakeTimer = setInterval(function (){snake.step(); }, 500);
+			}
+
+			//监听键盘时间
+			function listenEvent(e){
+				var e = e || event
+				snake.directionkey = e.keyCode > 36 && e.keyCode < 41 && Math.abs(e.keyCode - snake.directionkey) != 2 ? e.keyCode : snake.directionkey;
+				return false;
+			}
+
+			function twoArray(n, m){
+				var arr = new Array(m);
+				for (var i = 0; i < n; i++) {
+					arr[i] = new Array(n);
+				};
+				return arr;
+			}
+
+			createTable();
+			//实例化对象
+			snake = new Snake("#000");
+			snake.initSnake();
+			creatObject("food");
+			walk();
+
+			$(document).keydown(function(){
+				listenEvent();
+			})
+		})
+	</script>
+</head>
+<body>
+	<div id="message">Reday,GO!!</div>
+	<div id="snakeBox">
+		<div id="snakeArea"></div>
+		<input type="button" value="Start" class="start">
+	</div>
+</body>
+</html>
