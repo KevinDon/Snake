@@ -6,8 +6,10 @@
 	<style type="text/css">
 		table {margin:0; overflow:hidden; border-collapse:collapse; }
 		td {width:20px; height:20px; border:1px solid #eee; background:#f4f4f4}
-		#message{ width: 100%; margin: 0 auto; text-align: center; font-family: "Comic Sans MS"; font-size: 20px; }
-		#snakeBox{ overflow: hidden;padding-left: 600px;  margin: 0 auto;padding: 0;  width: 484px; }
+		#title { width: 484px;margin: 0 auto; margin: 0 auto; text-align: center; font-family: "Comic Sans MS"; font-size: 20px; overflow: hidden;}
+		#message{ float: left;margin: 0 auto; text-align: center; font-family: "Comic Sans MS"; font-size: 20px; margin-left: 165px;  }
+		.scores{ float: right; margin-right: 25px; }
+		#snakeBox{ overflow: hidden; margin: 0 auto;padding: 0;  width: 484px; }
 		#snakeArea{ }
 		.start{ display: block; margin: 10px 0 0 200px;}
 		.cover{ background: #000; }
@@ -49,6 +51,7 @@
 						clearInterval(snakeTimer);
 						console.log("Game Over!");
 						$("#message").html("Game Over!");
+						$(".start").removeAttr('disabled');
 						return false;
 					}
 
@@ -59,6 +62,19 @@
 						gridElemts[lastX][lastY].className = "";
 						this.snakeBody.pop();
 					}else{
+						var scores = parseInt($(".scores").text());
+						scores = scores + 100;
+						$(".scores").text(scores);
+						speed  = speed + 10;
+						initialTime = initialTime - speed;
+						if(initialTime < 50){
+							initialTime = 30;
+						}
+						if(snakeTimer){
+							clearInterval(snakeTimer);
+						}
+						console.log(initialTime);
+						snakeTimer = setInterval(function (){ snake.step(); }, initialTime);
 						carrier[headX][headY] = "cover";
 						gridElemts[headX][headY].className = "cover";
 						creatObject("food");
@@ -145,14 +161,31 @@
 				};
 				return arr;
 			}
+			//重置表格
+			function clearElemts(){
+				for (var i = gridElemts.length - 1; i >= 0; i--) {
+					for (var j = gridElemts[i].length - 1;j  >= 0;j --) {
+						gridElemts[i][j].className = "";
+					};
+				};
+			}
 
 			createTable();
-			//实例化对象
-			snake = new Snake("#000");
-			snake.initSnake();
-			creatObject("food");
-			walk();
-
+			
+			$(".start").click(function(){
+				if(! $(this).attr('disabled')){
+					clearElemts()
+					carrier = twoArray(width, height); 			
+					initialTime = 500; //初始时间
+					speed = 10; //速度
+					//实例化对象
+					snake = new Snake("#000");
+					snake.initSnake();
+					creatObject("food");
+					walk();
+					$(this).attr('disabled', 'true');
+				}
+			});
 			$(document).keydown(function(){
 				listenEvent();
 			})
@@ -160,7 +193,10 @@
 	</script>
 </head>
 <body>
-	<div id="message">Reday,GO!!</div>
+	<div id="title">
+		<div id="message">Reday,GO!!</div>
+		<div class="scores">0</div>
+	</div>
 	<div id="snakeBox">
 		<div id="snakeArea"></div>
 		<input type="button" value="Start" class="start">
