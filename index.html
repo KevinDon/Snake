@@ -20,7 +20,7 @@
 			var width = 20; //Area宽度
 			var height = 20; //Area高度
 			var gridElemts = twoArray(width, height); //td的元素 显示到界面
-			var carrier; //载体数组 虚拟的数组
+			var carrier; //载体数组 虚拟的数组 将snake的坐标存储在这里，然后再在界面上显示
 			var len;//Snake的初始长度
 			var snake;
 			var directionkey;
@@ -170,6 +170,8 @@
 					len = 3; 
 					snake = new Array();
 					directionkey = 39;
+					initialTime = 500; //初始时间
+					speed = 10; //速度
 					initSnake();
 					walk();
 					createObject("food");
